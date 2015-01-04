@@ -105,14 +105,17 @@ RWLock_wrlock(RWLockObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"blocking", NULL};
     PyObject *blocking = Py_False;
+    PyObject *kw = NULL, *result = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &blocking)) {
         return NULL;
     }
-    return RWLock_operation(self, args, \
-                            Py_BuildValue("{s:s,s:O}", \
-                                "operation", "w", \
-                                "blocking", blocking));
+    kw = Py_BuildValue("{s:s,s:O}", \
+        "operation", "w", \
+        "blocking", blocking);
+    result = RWLock_operation(self, args, kw);
+    Py_DECREF(kw);
+    return result;
 }
 
 static PyObject *
@@ -120,14 +123,17 @@ RWLock_rdlock(RWLockObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"blocking", NULL};
     PyObject *blocking = Py_False;
+    PyObject *kw = NULL, *result = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &blocking)) {
         return NULL;
     }
-    return RWLock_operation(self, args, \
-                            Py_BuildValue("{s:s,s:O}", \
-                                "operation", "r", \
-                                "blocking", blocking));
+    kw = Py_BuildValue("{s:s,s:O}", \
+        "operation", "r", \
+        "blocking", blocking);
+    result = RWLock_operation(self, args, kw);
+    Py_DECREF(kw);
+    return result;
 }
 
 static PyObject *
@@ -135,14 +141,17 @@ RWLock_unlock(RWLockObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"blocking", NULL};
     PyObject *blocking = Py_False;
+    PyObject *kw = NULL, *result = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &blocking)) {
         return NULL;
     }
-    return RWLock_operation(self, args, \
-                            Py_BuildValue("{s:s,s:O}", \
-                                "operation", "u", \
-                                "blocking", blocking));
+    kw = Py_BuildValue("{s:s,s:O}", \
+        "operation", "u", \
+        "blocking", blocking);
+    result = RWLock_operation(self, args, kw);
+    Py_DECREF(kw);
+    return result;
 }
 
 static PyMethodDef RWLock_methods[] = {
