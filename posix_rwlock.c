@@ -11,6 +11,11 @@ enum RWLLOCK_OPERATIONS {
     RWLOCK_WRITE,
 };
 
+enum RWLOCK_BLOCKING {
+    RWLOCK_NONBLOCKING,
+    RWLOCK_BLOCKING,
+};
+
 typedef struct {
     PyObject_HEAD
     pthread_rwlock_t *rwlock;
@@ -97,52 +102,56 @@ RWLock_operation(RWLockObject *self, const char operation, const char blocking)
 }
 
 static PyObject *
-RWLock_wrlock(RWLockObject *self, PyObject *args, PyObject *kwargs)
+RWLock_wrlock(RWLockObject *self, PyObject *args)
 {
-    static char *kwlist[] = {"blocking", NULL};
-    PyObject *blocking = Py_True;
-    char should_block = 1;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &blocking)) {
+    if (!PyArg_ParseTuple(args, "")) {
         return NULL;
     }
-    if (!PyObject_IsTrue(blocking)) {
-        should_block = 0;
-    }
-    return RWLock_operation(self, RWLOCK_WRITE, should_block);
+    return RWLock_operation(self, RWLOCK_WRITE, RWLOCK_BLOCKING);
 }
 
 static PyObject *
-RWLock_rdlock(RWLockObject *self, PyObject *args, PyObject *kwargs)
+RWLock_try_wrlock(RWLockObject *self, PyObject *args)
 {
-    static char *kwlist[] = {"blocking", NULL};
-    PyObject *blocking = Py_True;
-    char should_block = 1;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &blocking)) {
+    if (!PyArg_ParseTuple(args, "")) {
         return NULL;
     }
-    if (!PyObject_IsTrue(blocking)) {
-        should_block = 0;
-    }
-    return RWLock_operation(self, RWLOCK_READ, should_block);
+    return RWLock_operation(self, RWLOCK_WRITE, RWLOCK_NONBLOCKING);
 }
 
 static PyObject *
-RWLock_unlock(RWLockObject *self, PyObject *args, PyObject *kwargs)
+RWLock_rdlock(RWLockObject *self, PyObject *args)
 {
-    static char *kwlist[] = {NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "", kwlist)) {
+    if (!PyArg_ParseTuple(args, "")) {
         return NULL;
     }
-    return RWLock_operation(self, RWLOCK_UNLOCK, 0);
+    return RWLock_operation(self, RWLOCK_READ, RWLOCK_BLOCKING);
+}
+
+static PyObject *
+RWLock_try_rdlock(RWLockObject *self, PyObject *args)
+{
+    if (!PyArg_ParseTuple(args, "")) {
+        return NULL;
+    }
+    return RWLock_operation(self, RWLOCK_READ, RWLOCK_NONBLOCKING);
+}
+
+static PyObject *
+RWLock_unlock(RWLockObject *self, PyObject *args)
+{
+    if (!PyArg_ParseTuple(args, "")) {
+        return NULL;
+    }
+    return RWLock_operation(self, RWLOCK_UNLOCK, RWLOCK_NONBLOCKING);
 }
 
 static PyMethodDef RWLock_methods[] = {
-    {"wrlock", (PyCFunction)RWLock_wrlock, METH_VARARGS | METH_KEYWORDS, "Aquire write lock."},
-    {"rdlock", (PyCFunction)RWLock_rdlock, METH_VARARGS | METH_KEYWORDS, "Aquire read lock."},
-    {"unlock", (PyCFunction)RWLock_unlock, METH_VARARGS | METH_KEYWORDS, "Unlock previously aquired lock."},
+    {"wrlock", (PyCFunction)RWLock_wrlock, METH_VARARGS, "Aquire write lock."},
+    {"try_wrlock", (PyCFunction)RWLock_try_wrlock, METH_VARARGS, "Aquire write lock."},
+    {"rdlock", (PyCFunction)RWLock_rdlock, METH_VARARGS, "Aquire read lock."},
+    {"try_rdlock", (PyCFunction)RWLock_try_rdlock, METH_VARARGS, "Aquire read lock."},
+    {"unlock", (PyCFunction)RWLock_unlock, METH_VARARGS, "Unlock previously aquired lock."},
     //{"operation", (PyCFunction)RWLock_operation, METH_VARARGS | METH_KEYWORDS, "Operation"},
     {NULL}
 };
