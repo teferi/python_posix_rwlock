@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+enum RWLLOCK_OPERATIONS {
+    RWLOCK_UNLOCK,
+    RWLOCK_READ,
+    RWLOCK_WRITE,
+};
 
 typedef struct {
     PyObject_HEAD
@@ -18,7 +23,7 @@ RWLock_del(RWLockObject *self)
     int result;
     result = pthread_rwlock_destroy(self->rwlock);
     if (result) {
-        //raise some exception ?
+        //raise some warning?
     } else {
         free(self->rwlock);
     }
@@ -41,18 +46,11 @@ RWLock_init(RWLockObject *self, PyObject *args, PyObject *kwds)
     if (result) {
         return -1;
     }
-
     return 0;
 }
 
 static PyMemberDef RWLock_members[] = {
     {NULL}
-};
-
-enum RWLLOCK_OPERATIONS {
-    RWLOCK_UNLOCK,
-    RWLOCK_READ,
-    RWLOCK_WRITE,
 };
 
 static PyObject *
