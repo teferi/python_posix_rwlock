@@ -2,6 +2,7 @@
 #include <structmember.h>
 
 #include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 
 enum RWLLOCK_OPERATIONS {
@@ -89,7 +90,7 @@ RWLock_operation(RWLockObject *self, const char operation, const char blocking)
     }
 
     if (error) {
-        PyErr_SetString(RWLockException, "RWLock exception");
+        PyErr_SetString(RWLockException, strerror(error));
         return NULL;
     }
     Py_RETURN_TRUE;
