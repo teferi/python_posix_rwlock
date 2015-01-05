@@ -1,0 +1,7 @@
+.cscope.*
+cscope.*
+
+build/
+source/
+
+*.so
