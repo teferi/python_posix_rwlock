@@ -4,7 +4,7 @@ python_posix_rwlock
 Python wrapper around posix rwlock.
 
 Sample usage:
-```
+```python
 >>> import posix_rwlock
 >>> lock = posix_rwlock.RWLock()
 >>> lock.try_wrlock()
