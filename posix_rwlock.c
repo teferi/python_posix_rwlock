@@ -67,9 +67,12 @@ RWLock_operation(RWLockObject *self, const char operation, const char blocking)
 
     switch (operation) {
         case RWLOCK_UNLOCK:
+            Py_BEGIN_ALLOW_THREADS
             error = pthread_rwlock_unlock(self->rwlock);
+            Py_END_ALLOW_THREADS
             break;
         case RWLOCK_READ:
+            Py_BEGIN_ALLOW_THREADS
             if (blocking) {
                 error = pthread_rwlock_rdlock(self->rwlock);
             } else {
@@ -78,8 +81,10 @@ RWLock_operation(RWLockObject *self, const char operation, const char blocking)
                     Py_RETURN_FALSE;
                 }
             }
+            Py_END_ALLOW_THREADS
             break;
         case RWLOCK_WRITE:
+            Py_BEGIN_ALLOW_THREADS
             if (blocking) {
                 error = pthread_rwlock_wrlock(self->rwlock);
             } else {
@@ -88,6 +93,7 @@ RWLock_operation(RWLockObject *self, const char operation, const char blocking)
                     Py_RETURN_FALSE;
                 }
             }
+            Py_END_ALLOW_THREADS
             break;
         default:
             PyErr_SetString(RWLockException, "Unknown operation");
@@ -161,7 +167,7 @@ static char RWLock_doc[] = "pthread rwlock functions wrapper";
 static PyTypeObject RWLockObjectType = {
     PyObject_HEAD_INIT(NULL)
     0,              /* ob_size        */
-    "posix_rwlock.RWLock",        /* tp_name        */
+    "_posix_rwlock.RWLock",        /* tp_name        */
     sizeof(RWLockObject),       /* tp_basicsize   */
     0,              /* tp_itemsize    */
     (destructor)RWLock_del,        /* tp_del */
@@ -208,7 +214,7 @@ static PyTypeObject RWLockObjectType = {
 };
 
 PyMODINIT_FUNC
-initposix_rwlock(void)
+init_posix_rwlock(void)
 {
     PyObject* m;
 
@@ -216,12 +222,12 @@ initposix_rwlock(void)
     if (PyType_Ready(&RWLockObjectType) < 0)
         return;
 
-    m = Py_InitModule3("posix_rwlock", NULL,
+    m = Py_InitModule3("_posix_rwlock", NULL,
                "Example module that creates an extension type.");
     if (m == NULL)
         return;
 
-    RWLockException = PyErr_NewException("posix_rwlock.RWLockException", NULL, NULL);
+    RWLockException = PyErr_NewException("_posix_rwlock.RWLockException", NULL, NULL);
     Py_INCREF(RWLockException);
     PyModule_AddObject(m, "RWLockException", RWLockException);
 

@@ -9,7 +9,8 @@ setup(name="Python posix rwlock",
       author_email="k.zaitsev@me.com",
       url="https://github.com/teferi/python_posix_rwlock",
 
+      test_suite="tests",
       packages=["posix_rwlock"],
       ext_modules=[
-          Extension("posix_rwlock", sources=["posix_rwlock.c"])
+          Extension("_posix_rwlock", sources=["posix_rwlock.c"])
       ])
