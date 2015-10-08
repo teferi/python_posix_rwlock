@@ -72,28 +72,32 @@ RWLock_operation(RWLockObject *self, const char operation, const char blocking)
             Py_END_ALLOW_THREADS
             break;
         case RWLOCK_READ:
-            Py_BEGIN_ALLOW_THREADS
             if (blocking) {
+                Py_BEGIN_ALLOW_THREADS
                 error = pthread_rwlock_rdlock(self->rwlock);
+                Py_END_ALLOW_THREADS
             } else {
+                Py_BEGIN_ALLOW_THREADS
                 error = pthread_rwlock_tryrdlock(self->rwlock);
+                Py_END_ALLOW_THREADS
                 if (error == EBUSY) {
                     Py_RETURN_FALSE;
                 }
             }
-            Py_END_ALLOW_THREADS
             break;
         case RWLOCK_WRITE:
-            Py_BEGIN_ALLOW_THREADS
             if (blocking) {
+                Py_BEGIN_ALLOW_THREADS
                 error = pthread_rwlock_wrlock(self->rwlock);
+                Py_END_ALLOW_THREADS
             } else {
+                Py_BEGIN_ALLOW_THREADS
                 error = pthread_rwlock_trywrlock(self->rwlock);
+                Py_END_ALLOW_THREADS
                 if (error == EBUSY) {
                     Py_RETURN_FALSE;
                 }
             }
-            Py_END_ALLOW_THREADS
             break;
         default:
             PyErr_SetString(RWLockException, "Unknown operation");
